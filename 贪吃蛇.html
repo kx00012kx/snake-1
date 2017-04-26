@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>贪吃蛇</title>
+<style>
+
+body{
+	margin:0px;
+	padding:0px;
+}
+#grassland{
+	width:1200px;
+	height:650px;
+	border:3px solid #ccc;
+	margin:50px auto 0px;
+	position: relative;
+	border-radius:25px;
+}
+.snake{
+	width:50px;
+	height:50px;
+	background: #fff;
+	margin: 0px;
+	float: left;
+	text-align: center;
+	line-height: 42px;
+	color:green;
+	font-size:16px;
+	box-sizing:border-box;
+	border-radius: 100%;
+	border:3px dotted rgba(000,255,255,1);
+	box-shadow: 0px 0px 15px 3px rgba(000,255,000,0.8) inset;				
+}
+.food{	
+	width:50px;
+	height:50px;
+	text-align: center;
+	line-height: 30px;
+	color:orange;
+	font-size:36px;
+	background: rgba(255,000,000,0.8);
+	position: absolute;
+	top:100px;
+	box-sizing:border-box;
+	border-radius: 100%;
+	border:10px solid rgba(255,255,255,1);
+	box-shadow: 0px 0px 20px rgba(000,255,255,0.3) inset,
+				0px 0px 10px rgba(000,255,000,0.5) inset;			
+}
+#scoreboard{
+	width:1000px;
+	height:100px;
+	border-top: none;
+	border-radius: 0px 0px 25px 25px;
+	margin:0px auto;
+	background:-webkit-linear-gradient(top, transparent 79px, #666 80px);
+    background-size: 80px 80px;
+}
+#scoreboard span{
+	float: left;
+	margin:40px 0px 0px 50px;
+	line-height: 40px;
+	border: solid 1px #ddd;
+	border-radius: 25px 25px 0px 0px;
+	border-radius: 25px 25px 0px 0px;
+	padding:0px 10px;
+	border-bottom: none;
+}
+#scoreboard div{
+	float: right;
+	margin:38px 50px 0px 0px;
+	line-height: 40px;
+	border: solid 1px #ddd;
+	border-radius: 25px 25px 0px 0px;
+	padding:0px 10px;
+	border-bottom: none;
+}
+</style>
+</head>
+<body>
+	<div id="grassland">
+		<div class="snake">o</div>
+	</div>
+	<div id="scoreboard">
+		<div></div>
+		<span>按方向键开始!</span>
+	</div>
+</body>
+<script type="text/javascript">
+window.onload=function(){
+
+	var oGrass=document.getElementById('grassland');
+	var oDiv=oGrass.getElementsByTagName('div');
+	var food=document.createElement('span');
+	var oScoreboard=document.getElementById('scoreboard');
+	var oScore=oScoreboard.getElementsByTagName('div')[0];
+	var n=0;
+	var m=0;
+	var tm=null;
+	var dir=0;
+	var time=250;
+	var icore=-1;
+	var bh=css(oDiv[oDiv.length-1],'height');
+	var bw=css(oDiv[oDiv.length-1],'width');
+
+	function init(){		
+		for (var i = 0; i < oDiv.length; i++) {
+			oDiv[i].style.position='absolute';
+			oDiv[i].style.left='0px';
+			oDiv[i].style.left='0px';
+		}
+	}
+	init();
+
+	function key(keyCode){		
+		clearInterval(tm)
+		tm=setInterval(function(){
+			move(keyCode);
+		},time);				
+		return false;
+	}
+
+	document.onkeydown=function(e){
+		e=e||event;
+		switch(e.keyCode){
+			case 37://左
+				if(dir==1||dir==3){
+					return null;
+				}
+				key(e.keyCode)
+			break;
+
+			case 38://上
+				if(dir==2||dir==4){
+					return null;
+				}
+				key(e.keyCode)
+			break;
+
+			case 39://右
+				if(dir==1||dir==3){
+					return null;
+				}
+				key(e.keyCode)
+			break;
+
+			case 40://下
+				if(dir==2||dir==4){
+					return null;
+				}
+				key(e.keyCode)
+			break;
+		}
+	}		
+	
+	function addFood(){
+		icore++;
+		oScore.innerHTML='吃枣药丸 '+icore+' 颗';
+		var area=[];
+		for (var i = 0; i <css(oGrass,'width')/bw; i++) {
+			for (var j = 0; j < css(oGrass,'height')/bh; j++) {				
+				area.push({left:i*bw,top:j*bh})
+			}
+		}
+		var snake=[];
+		for (var k = 0; k < oDiv.length; k++) {
+			snake.push({left:oDiv[k].offsetLeft,top:oDiv[k].offsetTop});
+			for (var j = 0; j < area.length; j++) {
+				if(snake[k].left==area[j].left&&snake[k].top==area[j].top){
+					area.splice(j,1);
+					j--;
+				}
+			}
+		}
+		if(snake.length==200){
+			alert('厉害了!');
+		}
+		if(snake.length%10==0){
+			time-=35;
+		}else if(time<=50){
+			time=50;
+		}
+		var num=Math.floor(Math.random()*area.length);		
+		food.setAttribute('class','food');
+		food.style.top=area[num].top+'px';
+		food.style.left=area[num].left+'px';
+		food.style.zIndex=-1;
+		oGrass.appendChild(food);
+	}
+	addFood();
+
+	function adds(arr){
+		for (var i = 1; i < oDiv.length; i++) {			
+			oDiv[oDiv.length-1-i].style.left=arr[oDiv.length-i].left+'px';
+			oDiv[oDiv.length-1-i].style.top=arr[oDiv.length-i].top+'px';
+		}
+		var addBody=document.createElement('div');
+		addBody.style.position='absolute';
+		addBody.setAttribute('class','snake');
+		addBody.style.left=arr[0].left+'px';
+		addBody.style.top=arr[0].top+'px';
+		
+		oGrass.insertBefore(addBody,oDiv[0]);
+		arr.unshift({left:oDiv[0].offsetLeft,top:oDiv[0].offsetTop})
+		addFood();
+	}
+
+	function restart(){
+		oGrass.innerHTML='<div class="snake">0</div>';
+		init();
+		time=250;
+		n=0;
+		m=0;
+		dir=0;
+		icore=-1;
+		addFood();
+	}
+
+	function move(keyCode){
+		var arr1=[];
+		var lArr=[];
+		var tArr=[];
+		for (var i = 0; i < oDiv.length; i++) {
+			arr1.push({left:oDiv[i].offsetLeft,top:oDiv[i].offsetTop});
+			lArr.push(oDiv[i].offsetLeft);
+			tArr.push(oDiv[i].offsetTop);
+		}
+		switch(keyCode){
+
+			case 37:
+				if((n-1)*bw<0){
+					clearInterval(tm);
+					alert('不能撞我!');
+					restart();	
+					return null;
+				}
+				if(next(oDiv[oDiv.length-1].offsetLeft-bw,oDiv[oDiv.length-1].offsetTop,lArr,tArr)){
+					alert('自己可不好吃!');
+					clearInterval(tm);
+					restart();	
+					return null;					
+				}else{
+					n--;
+					dir=1;
+					oDiv[oDiv.length-1].style.left=n*bw+'px';
+					if(css(oDiv[oDiv.length-1],'top')==css(food,'top')&&css(oDiv[oDiv.length-1],'left')==css(food,'left')){
+						adds(arr1)
+					}
+				}
+			break;
+
+			case 38:
+				if((m-1)*bh<0){
+					clearInterval(tm);
+					alert('南墙可撞');
+					restart();
+					return null;
+				}
+				if(next(oDiv[oDiv.length-1].offsetTop-bh,oDiv[oDiv.length-1].offsetLeft,tArr,lArr)){
+					alert('自己可不好吃!');
+					clearInterval(tm);
+					return null;					
+				}else{
+					m--;
+					dir=2;
+					oDiv[oDiv.length-1].style.top=m*bh+'px';
+					if(css(oDiv[oDiv.length-1],'top')==css(food,'top')&&css(oDiv[oDiv.length-1],'left')	==css(food,'left')){
+						adds(arr1)
+					}
+				}
+			break;
+
+			case 39:
+				if((n+2)*bw>css(oGrass,'width')){
+					clearInterval(tm);
+					alert('我不能撞');
+					restart();					
+					return null;
+				}
+				if(next(oDiv[oDiv.length-1].offsetLeft+bw,oDiv[oDiv.length-1].offsetTop,lArr,tArr)){
+					alert('自己可不好吃!');
+					clearInterval(tm);
+					restart();	
+					return null;					
+				}else{
+					n++;
+					dir=3;
+					oDiv[oDiv.length-1].style.left=n*bw+'px';
+					if(css(oDiv[oDiv.length-1],'top')==css(food,'top')&&css(oDiv[oDiv.length-1],'left')	==css(food,'left')){
+						adds(arr1)
+					}
+				}	
+			break;
+
+			case 40:
+				if((m+2)*bh>css(oGrass,'height')){
+					clearInterval(tm);
+					alert('我是南墙,撞我为你+1s!');
+					return null;
+				}
+				if(next(oDiv[oDiv.length-1].offsetTop+bh,oDiv[oDiv.length-1].offsetLeft,tArr,lArr)){
+					alert('自己可不好吃!');
+					clearInterval(tm);
+					restart();	
+					return null;					
+				}else{
+					m++;
+					dir=4;
+					oDiv[oDiv.length-1].style.top=m*bh+'px';
+					if(css(oDiv[oDiv.length-1],'top')==css(food,'top')&&css(oDiv[oDiv.length-1],'left')	==css(food,'left')){
+						adds(arr1)
+					}	
+				}
+			break;
+		}						
+		for (var i = 1; i < oDiv.length; i++) {			
+			oDiv[oDiv.length-1-i].style.left=arr1[oDiv.length-i].left+'px';
+			oDiv[oDiv.length-1-i].style.top=arr1[oDiv.length-i].top+'px';
+		}		
+	}
+
+	function next(otar,itar,arr1,arr2){
+		var arr0=[]
+		for (var i = 0; i < arr1.length; i++) {
+			if(arr1[i]==otar){
+				arr0.push(i)							
+			}			
+		}
+		if(arr0.length==0){
+			return false;
+		}else{
+			var h=0;
+			for (var j = 0; j < arr0.length; j++) {
+				if(arr2[arr0[j]]==itar){
+					h=1;
+					break;
+				}
+			}
+			if(h){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	}
+
+	function css(obj,attr){
+		return Math.round(parseFloat(obj.currentStyle?obj.currentStyle[attr]:getComputedStyle(obj,false)[attr]));
+	}
+}
+</script>
+</html>
